@@ -1,23 +1,44 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './domain/User';
 import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
-  private users: UserDto[] = [
-    new UserDto('lee1', '이정주'),
-    new UserDto('kim1', '김명일'),
-  ];
-
-  findAll(): Promise<UserDto[]> {
-    return new Promise((resolve) => setTimeout(() => resolve(this.users), 100));
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>,
+  ) {
+    this.userRepository = userRepository;
   }
 
-  findOne(id: string): UserDto {
-    const foundOne = this.users.filter((user) => user.userId === id);
-    return foundOne[0];
+  /**
+   * User 리스트 조회
+   */
+  findAll(): Promise<User[]> {
+    return this.userRepository.find();
   }
 
-  saveUser(userDto: UserDto): void {
-    this.users = [...this.users, userDto];
+  /**
+   * 특정 유저 조회
+   * @param id
+   */
+  findOne(id: string): Promise<User> {
+    return this.userRepository.findOne({ userId: id });
+  }
+
+  /**
+   * 유저 저장
+   * @param user
+   */
+  async saveUser(user: User): Promise<void> {
+    await this.userRepository.save(user);
+  }
+
+  /**
+   * 유저 삭제
+   */
+  async deleteUser(id: string): Promise<void> {
+    await this.userRepository.delete({ userId: id });
   }
 }

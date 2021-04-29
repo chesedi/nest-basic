@@ -1,41 +1,63 @@
-import { UserService } from './user.service';
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
-import { TestService } from 'src/test/test.service';
-
+import { UserService } from './user.service';
+import { TestService } from '../test/test.service';
+import { User } from './domain/User';
 @Controller('user')
 export class UserController {
-  // 의존성(Dependency) 주입
   constructor(
-    private userSerivce: UserService,
+    private userService: UserService,
     private testService: TestService,
   ) {
-    this.userSerivce = userSerivce;
+    this.userService = userService;
     this.testService = testService;
   }
-
   @Get('test')
   findAnotherTest(): string {
     return this.testService.getInfo();
   }
-
   @Get('list')
-  findAll(): Promise<any[]> {
-    return this.userSerivce.findAll();
-  }
-
-  @Get(':userId')
-  findOne(@Param('userId') id: string): any {
-    return this.userSerivce.findOne(id);
-  }
-
-  @Post()
-  saveUser(@Body() userDto: UserDto): string {
-    this.userSerivce.saveUser(userDto);
+  async findAll(): Promise<User[]> {
+    const userList = await this.userService.findAll();
     return Object.assign({
-      data: { ...userDto },
+      data: userList,
+      statusCode: 200,
+      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
+    });
+  }
+  @Get(':userId')
+  async findOne(@Param('userId') id: string): Promise<User> {
+    const foundUser = await this.userService.findOne(id);
+    return Object.assign({
+      data: foundUser,
+      statusCode: 200,
+      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
+    });
+  }
+  @Post()
+  async saveUser(@Body() user: User): Promise<string> {
+    await this.userService.saveUser(user);
+    return Object.assign({
+      data: { ...user },
       statusCode: 201,
-      statusMsg: `created successfully`,
+      statusMsg: `saved successfully`,
+    });
+  }
+  @Delete(':userId')
+  async deleteUser(@Param('userId') id: string): Promise<string> {
+    await this.userService.deleteUser(id);
+    return Object.assign({
+      data: { userId: id },
+      statusCode: 201,
+      statusMsg: `deleted successfully`,
     });
   }
 }

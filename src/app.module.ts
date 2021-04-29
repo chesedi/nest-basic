@@ -9,10 +9,26 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { TestModule } from './test/test.module';
 import { LoggerMiddleware } from './middleware/LoggerMiddleware';
-import { ExceptionController } from './exception/exception.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ExceptModule } from './exception/except.module';
+import { User } from './user/domain/User';
 @Module({
-  imports: [UserModule, TestModule],
-  controllers: [AppController, ExceptionController],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'password',
+      database: 'uaa',
+      entities: [User],
+      synchronize: true,
+    }),
+    UserModule,
+    TestModule,
+    ExceptModule,
+  ],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {
