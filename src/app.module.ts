@@ -9,9 +9,10 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { TestModule } from './test/test.module';
 import { LoggerMiddleware } from './middleware/LoggerMiddleware';
+import { ExceptionController } from './exception/exception.controller';
 @Module({
   imports: [UserModule, TestModule],
-  controllers: [AppController],
+  controllers: [AppController, ExceptionController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {
