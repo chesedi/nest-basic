@@ -12,6 +12,7 @@ import { LoggerMiddleware } from './middleware/LoggerMiddleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ExceptModule } from './exception/except.module';
 import { User } from './user/domain/User';
+import { Photo } from './user/domain/Photo';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -21,7 +22,8 @@ import { User } from './user/domain/User';
       username: 'postgres',
       password: 'password',
       database: 'uaa',
-      entities: [User],
+      // autoLoadEntities: true,
+      entities: [User, Photo],
       synchronize: true,
     }),
     UserModule,

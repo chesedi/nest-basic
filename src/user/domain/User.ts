@@ -1,9 +1,11 @@
 import {
   Column,
   Entity,
+  OneToMany,
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm/index';
+import { Photo } from './Photo';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('rowid')
@@ -18,4 +20,6 @@ export class User {
   age: number;
   @Column({ default: true })
   isActive: boolean;
+  @OneToMany((type) => Photo, (photo) => photo.user)
+  photos: Photo[];
 }
