@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { User } from './domain/User';
 import { UserDto } from './dto/user.dto';
 
@@ -8,7 +8,9 @@ import { UserDto } from './dto/user.dto';
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private connection: Connection,
   ) {
+    this.connection = connection;
     this.userRepository = userRepository;
   }
 
@@ -40,5 +42,27 @@ export class UserService {
    */
   async deleteUser(id: string): Promise<void> {
     await this.userRepository.delete({ userId: id });
+  }
+
+  /**
+   * 다수의 유저 입력
+   */
+  async createUsers(users: User[]) {
+    let isSuccess = true;
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.save(users[0]); // (1)
+      await queryRunner.manager.save(users[1]); // (2)
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      console.log('Rollback 실행..');
+      await queryRunner.rollbackTransaction();
+      isSuccess = false;
+    } finally {
+      await queryRunner.release();
+      return isSuccess;
+    }
   }
 }
